@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniaturas A/B</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: #0d0907; font-family: Inter, sans-serif; }
+  .t { position: absolute; inset: 0; display: none; overflow: hidden; }
+  .t.on { display: block; }
+  .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .shade { position: absolute; inset: 0; }
+  /* El personaje ocupa la mitad derecha y se funde hacia la izquierda */
+  .char { position: absolute; right: -40px; bottom: 0; height: 720px; width: 640px; background-size: cover; background-position: center top;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%); mask-image: linear-gradient(90deg, transparent 0%, #000 22%); }
+  .big { position: absolute; left: 50px; font-family: Anton, Impact, sans-serif; text-transform: uppercase; line-height: .92;
+    color: #fff; text-shadow: 0 6px 0 rgba(0, 0, 0, .55), 0 0 40px rgba(0, 0, 0, .6); letter-spacing: .5px; }
+  .y { color: #ffd23f; } .o { color: #ff8a3d; } .g { color: #59f08a; }
+  .pill { position: absolute; left: 50px; font-weight: 900; font-size: 34px; padding: 10px 22px; border-radius: 14px; }
+  .strike { position: relative; }
+  .strike::after { content: ''; position: absolute; left: -6px; right: -6px; top: 52%; height: 12px; background: #ff3b3b; transform: rotate(-6deg); border-radius: 6px; }
+  .timer { position: absolute; left: 50px; bottom: 60px; display: flex; align-items: center; gap: 22px; font-family: Anton, sans-serif; }
+  .timer .a { font-size: 96px; color: #fff; opacity: .55; }
+  .timer .arr { font-size: 80px; color: #ffd23f; }
+  .timer .b { font-size: 132px; color: #59f08a; text-shadow: 0 0 30px rgba(89, 240, 138, .5); }
+</style>
+</head>
+<body>
+
+<!-- A: gratis / sin Higgsfield, cara de sorpresa -->
+<section class="t" id="a">
+  <div class="bg" style="background:radial-gradient(900px 600px at 30% 40%, #3a1a08, #0d0907)"></div>
+  <div class="char" style="background-image:url(../voz/personaje/expresiones/sorprendida_7.png)"></div>
+  <div class="pill" style="top:56px;background:#ff3b3b;color:#fff">SIN HIGGSFIELD</div>
+  <div class="big" style="top:150px;font-size:150px">VIDEO IA<br><span class="y">GRATIS</span></div>
+  <div class="big" style="top:470px;font-size:64px">EN MI <span class="o">PC</span></div>
+</section>
+
+<!-- B: 2× más rápido, señalando, con el benchmark -->
+<section class="t" id="b">
+  <div class="bg" style="background:radial-gradient(900px 600px at 30% 40%, #0b2a16, #070d09)"></div>
+  <div class="char" style="background-image:url(../voz/personaje/expresiones/senalando_7.png)"></div>
+  <div class="big" style="top:60px;font-size:170px"><span class="g">2×</span> MÁS<br>RÁPIDO</div>
+  <div class="timer"><span class="a">166s</span><span class="arr">→</span><span class="b">81s</span></div>
+</section>
+
+<!-- C: landing de película, celebrando, con un frame de la landing de fondo -->
+<section class="t" id="c">
+  <div class="bg" style="background:radial-gradient(900px 600px at 30% 40%, #3b1d05, #0d0907)"></div>
+  <div class="char" style="width:700px;right:-20px;background-position:center 0;background-image:url(../voz/personaje/expresiones/celebrando_7.png)"></div>
+  <div class="pill" style="top:56px;background:#ffd23f;color:#1a0c05">GRATIS · SIN CRÉDITOS</div>
+  <div class="big" style="top:150px;font-size:132px">LANDING<br>DE <span class="o">PELÍCULA</span></div>
+  <div class="big" style="top:452px;font-size:60px">CON IA EN MI <span class="y">RTX</span></div>
+</section>
+
+<script>
+  const id = new URLSearchParams(location.search).get('m') || 'a';
+  document.getElementById(id).classList.add('on');
+</script>
+</body>
+</html>

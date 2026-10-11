@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short SageAttention: láminas</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+  .s { position: absolute; inset: 0; display: none; background: radial-gradient(900px 900px at 50% 35%, #2a1206, #0d0907 70%); }
+  .s.on { display: block; }
+  /* Zona segura de Shorts: arriba ~220 px y abajo ~420 px los tapa la interfaz; botones a la derecha */
+  .big { position: absolute; left: 0; right: 0; text-align: center; font-family: Anton, Impact, sans-serif; text-transform: uppercase;
+    text-shadow: 0 8px 0 rgba(0, 0, 0, .5); line-height: .95; }
+  .y { color: #ffd23f; } .g { color: #59f08a; } .r { color: #ff5a5a; } .o { color: #ff8a3d; }
+  .char { position: absolute; background-size: cover; background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%);
+            mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%); }
+  .box { position: absolute; left: 60px; right: 120px; border-radius: 28px; background: rgba(246, 238, 228, .08); border: 2px solid rgba(246, 238, 228, .18);
+    text-align: center; padding: 30px; }
+  .lbl { position: absolute; font-weight: 800; font-size: 40px; padding: 10px 22px; border-radius: 14px; }
+</style>
+</head>
+<body>
+
+<!-- Los videos se superponen con ffmpeg en las zonas vacías -->
+<section class="s" id="hook">
+  <div class="big" style="top:300px;font-size:100px">Animé esta foto</div>
+  <div class="big y" style="top:1110px;font-size:110px">Y las caras…</div>
+  <div class="char" style="left:620px;top:1180px;width:360px;height:400px;background-image:url(../voz/personaje/expresiones/pensando_7.png)"></div>
+</section>
+<section class="s" id="p480">
+  <div class="big r" style="top:280px;font-size:120px;text-transform:none">480p</div>
+  <div class="big" style="top:1110px;font-size:84px">~8 píxeles por cara</div>
+</section>
+<section class="s" id="p720">
+  <div class="big g" style="top:280px;font-size:120px;text-transform:none">720p</div>
+  <div class="big" style="top:1110px;font-size:84px">3× más píxeles</div>
+</section>
+<section class="s" id="comparacion">
+  <div class="lbl" style="left:150px;top:350px;background:#ff5a5a">480p</div>
+  <div class="lbl" style="left:150px;top:920px;background:#59f08a;color:#0d0907">720p</div>
+</section>
+<section class="s" id="cta">
+  <div class="big" style="top:300px;font-size:96px">Gratis</div>
+  <div class="big y" style="top:410px;font-size:96px">en mi RTX</div>
+  <div class="char" style="left:290px;top:560px;width:500px;height:580px;background-image:url(../voz/personaje/expresiones/pulgar_sin_lunar.png)"></div>
+  <div class="big o" style="top:1150px;font-size:84px">Video completo<br>en el canal</div>
+</section>
+
+<script>
+  const id = new URLSearchParams(location.search).get('s') || 'hook';
+  document.getElementById(id).classList.add('on');
+</script>
+</body>
+</html>

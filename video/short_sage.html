@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short SageAttention: láminas</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+  .s { position: absolute; inset: 0; display: none; background: radial-gradient(900px 900px at 50% 35%, #2a1206, #0d0907 70%); }
+  .s.on { display: block; }
+  /* Zona segura de Shorts: arriba ~220 px y abajo ~420 px los tapa la interfaz; botones a la derecha */
+  .big { position: absolute; left: 0; right: 0; text-align: center; font-family: Anton, Impact, sans-serif; text-transform: uppercase;
+    text-shadow: 0 8px 0 rgba(0, 0, 0, .5); line-height: .95; }
+  .y { color: #ffd23f; } .g { color: #59f08a; } .r { color: #ff5a5a; } .o { color: #ff8a3d; }
+  .char { position: absolute; background-size: cover; background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%);
+            mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%); }
+  .box { position: absolute; left: 60px; right: 120px; border-radius: 28px; background: rgba(246, 238, 228, .08); border: 2px solid rgba(246, 238, 228, .18);
+    text-align: center; padding: 30px; }
+  .lbl { position: absolute; font-weight: 800; font-size: 40px; padding: 10px 22px; border-radius: 14px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Gancho -->
+<section class="s" id="hook">
+  <div class="big" style="top:300px;font-size:120px">Mismo video</div>
+  <div class="big r" style="top:460px;font-size:230px;text-transform:none">166s</div>
+  <div class="big y" style="top:700px;font-size:140px">↓</div>
+  <div class="big g" style="top:840px;font-size:300px;text-transform:none">81s</div>
+  <div class="char" style="left:600px;top:1000px;width:360px;height:400px;background-image:url(../voz/personaje/expresiones/sorprendida_7.png)"></div>
+</section>
+
+<!-- 2. Nombre -->
+<section class="s" id="nombre">
+  <div class="big" style="top:330px;font-size:90px">Se llama</div>
+  <div class="big o" style="top:460px;font-size:150px">Sage<br>Attention</div>
+  <div class="char" style="left:300px;top:800px;width:480px;height:620px;background-image:url(../voz/personaje/expresiones/senalando_7.png)"></div>
+</section>
+
+<!-- 3. Explicación -->
+<section class="s" id="redondeo">
+  <div class="big" style="top:300px;font-size:84px">Números más cortos</div>
+  <div class="box" style="top:470px"><div style="font-size:40px;font-weight:800;color:#b9a998">16 BITS</div><div class="big" style="position:static;font-size:150px">3,14159265</div></div>
+  <div class="big y" style="top:830px;font-size:120px">↓</div>
+  <div class="box" style="top:980px"><div style="font-size:40px;font-weight:800;color:#b9a998">8 BITS</div><div class="big g" style="position:static;font-size:200px">3,14</div></div>
+</section>
+
+<!-- 4. Comparación: los videos se superponen en estas cajas con ffmpeg -->
+<section class="s" id="comparacion">
+  <div class="big" style="top:260px;font-size:96px">Misma semilla</div>
+  <div class="lbl" style="left:130px;top:380px;background:#ff5a5a">SIN · 166s</div>
+  <div class="lbl" style="left:130px;top:925px;background:#59f08a;color:#0d0907">CON · 81s</div>
+</section>
+
+<!-- 5. Llamada a la acción -->
+<section class="s" id="cta">
+  <div class="big" style="top:300px;font-size:100px">Cómo instalarlo</div>
+  <div class="big y" style="top:420px;font-size:100px">sin romper nada</div>
+  <div class="char" style="left:290px;top:560px;width:500px;height:580px;background-image:url(../voz/personaje/expresiones/pulgar_sin_lunar.png)"></div>
+  <div class="big o" style="top:1150px;font-size:84px">Video completo<br>en el canal</div>
+</section>
+
+<script>
+  const id = new URLSearchParams(location.search).get('s') || 'hook';
+  document.getElementById(id).classList.add('on');
+</script>
+</body>
+</html>

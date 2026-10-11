@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Banner del canal</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 2048px; height: 1152px; overflow: hidden; background: #0d0907; font-family: Inter, sans-serif; }
+  /* Fondo: código tenue y brillo naranja; se ve en compu y TV, fuera de la zona segura */
+  .bg { position: absolute; inset: 0;
+    background: radial-gradient(900px 520px at 62% 50%, rgba(232, 116, 59, .35), transparent 70%),
+                radial-gradient(1400px 800px at 20% 60%, rgba(255, 210, 63, .08), transparent 70%), #0d0907; }
+  pre { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 22px; line-height: 1.6; color: rgba(246, 238, 228, .07); white-space: pre; }
+  /* Zona segura para todos los dispositivos: 1235 x 338 centrada */
+  .safe { position: absolute; left: 406px; top: 407px; width: 1235px; height: 338px; }
+  .char { position: absolute; right: -40px; top: -170px; width: 600px; height: 680px; background-size: cover; background-position: center 12%;
+    -webkit-mask-image: radial-gradient(ellipse 44% 46% at 50% 42%, #000 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 44% 46% at 50% 42%, #000 55%, transparent 100%); }
+  .txt { position: absolute; left: 30px; top: 14px; width: 760px; }
+  .kicker { font-weight: 800; font-size: 26px; letter-spacing: .28em; color: #ff8a3d; }
+  h1 { font-family: Anton, Impact, sans-serif; font-size: 104px; line-height: .95; color: #fff; text-transform: uppercase; margin-top: 10px;
+    text-shadow: 0 6px 0 rgba(0, 0, 0, .5); }
+  h1 span { color: #ffd23f; }
+  .tags { margin-top: 14px; display: flex; gap: 12px; }
+  .tags b { font-weight: 600; font-size: 24px; color: #f6eee4; background: rgba(246, 238, 228, .1); border: 1px solid rgba(246, 238, 228, .2);
+    padding: 8px 16px; border-radius: 999px; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+<pre style="left:40px;top:60px">import comfy
+from wan import ImageToVideo
+pipe = ImageToVideo("wan2.2_i2v_14B")
+pipe.enable("sage_attention")
+clip = pipe(frame, steps=4, fps=16)</pre>
+<pre style="right:60px;top:820px">$ nvidia-smi
+RTX 5060 Ti · 16 GB · 34°C
+$ python montaje.py
+listo: video_final.mp4</pre>
+  <div class="safe">
+    <div class="txt">
+      <div class="kicker">VIDEO · VOZ · IMAGEN · CÓDIGO</div>
+      <h1>IA local<br><span>en mi RTX</span></h1>
+      <div class="tags"><b>Tutoriales</b><b>Benchmarks</b><b>Sin créditos</b></div>
+    </div>
+    <div class="char" style="background-image:url(../voz/personaje/expresiones/pulgar_sin_lunar.png)"></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short SageAttention: láminas</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+  .s { position: absolute; inset: 0; display: none; background: radial-gradient(900px 900px at 50% 35%, #2a1206, #0d0907 70%); }
+  .s.on { display: block; }
+  /* Zona segura de Shorts: arriba ~220 px y abajo ~420 px los tapa la interfaz; botones a la derecha */
+  .big { position: absolute; left: 0; right: 0; text-align: center; font-family: Anton, Impact, sans-serif; text-transform: uppercase;
+    text-shadow: 0 8px 0 rgba(0, 0, 0, .5); line-height: .95; }
+  .y { color: #ffd23f; } .g { color: #59f08a; } .r { color: #ff5a5a; } .o { color: #ff8a3d; }
+  .char { position: absolute; background-size: cover; background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%);
+            mask-image: radial-gradient(ellipse 48% 50% at 50% 42%, #000 58%, transparent 100%); }
+  .box { position: absolute; left: 60px; right: 120px; border-radius: 28px; background: rgba(246, 238, 228, .08); border: 2px solid rgba(246, 238, 228, .18);
+    text-align: center; padding: 30px; }
+  .lbl { position: absolute; font-weight: 800; font-size: 40px; padding: 10px 22px; border-radius: 14px; }
+</style>
+</head>
+<body>
+
+<section class="s" id="hook">
+  <div class="big" style="top:330px;font-size:150px">Esta voz</div>
+  <div class="big r" style="top:500px;font-size:150px">no es mía</div>
+  <div class="char" style="left:240px;top:720px;width:600px;height:680px;background-image:url(../voz/personaje/expresiones/sorprendida_7.png)"></div>
+</section>
+<section class="s" id="ia">
+  <div class="big" style="top:330px;font-size:110px">La genera</div>
+  <div class="big o" style="top:460px;font-size:150px">una IA</div>
+  <div class="big" style="top:640px;font-size:80px">en mi PC</div>
+  <div class="char" style="left:290px;top:790px;width:500px;height:600px;background-image:url(../voz/personaje/expresiones/senalando_7.png)"></div>
+</section>
+<section class="s" id="muestra">
+  <div class="big" style="top:330px;font-size:110px">20 segundos</div>
+  <div class="big" style="top:470px;font-size:70px">de mi voz</div>
+  <div class="big y" style="top:600px;font-size:120px">↓</div>
+  <div class="big o" style="top:760px;font-size:150px;text-transform:none">F5-TTS</div>
+  <div class="big" style="top:950px;font-size:64px">clon de mi voz, en local</div>
+</section>
+<section class="s" id="velocidad">
+  <div class="big g" style="top:330px;font-size:260px;text-transform:none">~2 s</div>
+  <div class="big" style="top:640px;font-size:80px">por frase</div>
+  <div class="big" style="top:800px;font-size:70px">sin internet</div>
+  <div class="big" style="top:900px;font-size:70px">sin pagar</div>
+</section>
+<section class="s" id="ingles">
+  <div class="big" style="top:330px;font-size:96px">Lo que no le sale:</div>
+  <div class="big y" style="top:470px;font-size:150px">el inglés</div>
+  <div class="big o" style="top:700px;font-size:130px;text-transform:none">"ComfyUI"</div>
+  <div class="char" style="left:310px;top:880px;width:460px;height:540px;background-image:url(../voz/personaje/expresiones/pensando_7.png)"></div>
+</section>
+<section class="s" id="cta">
+  <div class="big" style="top:300px;font-size:96px">Cómo lo hice</div>
+  <div class="char" style="left:290px;top:440px;width:500px;height:620px;background-image:url(../voz/personaje/expresiones/pulgar_sin_lunar.png)"></div>
+  <div class="big o" style="top:1100px;font-size:84px">Video completo<br>en el canal</div>
+</section>
+
+<script>
+  const id = new URLSearchParams(location.search).get('s') || 'hook';
+  document.getElementById(id).classList.add('on');
+</script>
+</body>
+</html>
