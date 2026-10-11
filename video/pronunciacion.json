@@ -1,0 +1,123 @@
+{
+ "idea:2": {
+  "voz": "Usaban Claude Code y Jígsfild, un servicio que genera los videos en la nube.",
+  "seed": 11,
+  "terminos": {
+   "Higgsfield": "Jígsfild",
+   "Claude Code": "Claude Code"
+  }
+ },
+ "idea:3": {
+  "voz": "El problema: Jígs-fild funciona con créditos que se pagan.",
+  "seed": 11,
+  "terminos": {
+   "Higgsfield": "Jígs-fild"
+  }
+ },
+ "setup:1": {
+  "voz": "Tengo una pe ce con una erre te equis cincuenta sesenta te i de dieciséis gigas, y la uso desde mi laptop a través de Teil-esquéil.",
+  "seed": 11,
+  "terminos": {
+   "Tailscale": "Teil-esquéil"
+  }
+ },
+ "setup:4": {
+  "voz": "Me quedé con Uán dos punto dos: es el que más respeta la foto original y tiene licencia Apache, libre para todo.",
+  "seed": 7,
+  "terminos": {
+   "Wan": "Uán"
+  }
+ },
+ "paso_a_paso:1": {
+  "voz": "Si lo quieres replicar, estos son los pasos. Primero, descarga Comfi iuai portable para envidia desde su Guítjab.",
+  "seed": 7,
+  "terminos": {
+   "ComfyUI": "Comfi iuai",
+   "GitHub": "Guítjab"
+  }
+ },
+ "paso_a_paso:5": {
+  "voz": "Los dos modelos de Guán, el de ruido alto y el de ruido bajo, en la versión efe pe ocho, que entra en dieciséis gigas.",
+  "seed": 7,
+  "terminos": {
+   "Wan": "Guán"
+  }
+ },
+ "paso_a_paso:6": {
+  "voz": "El codificador de texto, el ve a e y las dos loras de cuatro pasos. Todo eso está en el repositorio de Cómfi en Jáguinfeis.",
+  "seed": 11,
+  "terminos": {
+   "Hugging Face": "Jáguinfeis"
+  }
+ },
+ "paso_a_paso:8": {
+  "voz": "Tercero, si lo vas a usar desde otra computadora como yo, arranca Comfi iuai con lisen y abre el puerto solo para tu red de Téilskeil.",
+  "seed": 7,
+  "terminos": {
+   "ComfyUI": "Comfi iuai",
+   "Tailscale": "Téilskeil"
+  }
+ },
+ "paso_a_paso:11": {
+  "voz": "Si tienes dieciséis gigas de ram, usa la versión de cinco be de Guán, que es más liviana.",
+  "seed": 11,
+  "terminos": {
+   "Wan": "Guán"
+  }
+ },
+ "sage:3": {
+  "voz": "Seij aténshon hace ese mismo cálculo con números más cortos, de ocho bits en vez de dieciséis.",
+  "seed": 7,
+  "terminos": {
+   "SageAttention": "Seij aténshon"
+  }
+ },
+ "sage:5": {
+  "voz": "Lo medí con la misma foto, el mismo prompt y la misma semilla. A la izquierda sin Sage Attention: ciento sesenta y seis segundos.",
+  "seed": 7,
+  "terminos": {
+   "SageAttention": "Sage Attention"
+  }
+ },
+ "sage:9": {
+  "voz": "Busca un güil precompilado para güindous que coincida con tu versión de Páitorch, e instala también tráiton para güindous.",
+  "seed": 7,
+  "terminos": {
+   "PyTorch": "Páitorch",
+   "Triton": "tráiton",
+   "Windows": "güindous",
+   "wheel": "güil"
+  }
+ },
+ "sage:10": {
+  "voz": "Y en vez de activarlo para todo Cómfi, iu ái, lo activo con un nodo de kei yei nouds dentro del flujo. Así puedo comparar con y sin.",
+  "seed": 7,
+  "terminos": {
+   "ComfyUI": "Cómfi, iu ái",
+   "KJNodes": "kei yei nouds"
+  }
+ },
+ "sage:11": {
+  "voz": "Con seichatenshon, las escenas a setecientos veinte pe bajaron de casi ocho minutos a unos cuatro y medio.",
+  "seed": 7,
+  "terminos": {
+   "SageAttention": "seichatenshon"
+  }
+ },
+ "landing:6": {
+  "voz": "Está publicada en Guit-jáb Peiyes, con las dos versiones y una página para comparar todos los videos del benchmark.",
+  "seed": 7,
+  "terminos": {
+   "GitHub": "Guit-jáb",
+   "GitHub Pages": "Gitjab peichis"
+  }
+ },
+ "cierre:1": {
+  "voz": "En resumen: Wan dos punto dos en tu propia tarjeta, Sage Attention para ir el doble de rápido, y setecientos veinte pe si hay caras.",
+  "seed": 11,
+  "terminos": {
+   "SageAttention": "Sage Attention",
+   "Wan": "Wan"
+  }
+ }
+}

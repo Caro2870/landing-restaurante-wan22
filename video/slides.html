@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Láminas del video</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0907; --panel: #17110d; --ink: #f6eee4; --muted: #b9a998;
+    --ember: #e8743b; --peach: #ffc59a; --good: #7fc98f; --bad: #e06c6c; --warn: #e8c15a;
+    --line: rgba(246, 238, 228, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: Inter, sans-serif; }
+  /* Deja libre la franja inferior (180 px) para los subtítulos */
+  .slide { position: absolute; inset: 0 0 180px; padding: 90px 140px 0; display: none; flex-direction: column; justify-content: center;
+    background: radial-gradient(1200px 700px at 85% 10%, rgba(232, 116, 59, .14), transparent 60%), var(--bg); }
+  .slide.on { display: flex; }
+  .kicker { font-size: 26px; letter-spacing: .24em; text-transform: uppercase; color: var(--ember); margin-bottom: 28px; font-weight: 500; }
+  h1 { font-family: Fraunces, serif; font-weight: 300; font-size: 128px; line-height: 1.02; letter-spacing: -.01em; }
+  h2 { font-family: Fraunces, serif; font-weight: 300; font-size: 84px; line-height: 1.05; margin-bottom: 44px; }
+  em { font-style: italic; color: var(--peach); }
+  p.sub { font-size: 38px; color: var(--muted); margin-top: 30px; max-width: 1400px; line-height: 1.4; }
+  .row { display: flex; gap: 40px; align-items: stretch; }
+  .card { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 28px; padding: 44px 48px; }
+  .card h3 { font-size: 40px; font-weight: 600; margin-bottom: 18px; }
+  .card p, .card li { font-size: 32px; color: var(--muted); line-height: 1.45; }
+  .card.good { border-color: rgba(127, 201, 143, .5); }
+  .card.bad { border-color: rgba(224, 108, 108, .45); }
+  ul.clean { list-style: none; display: grid; gap: 22px; }
+  ul.clean li { font-size: 40px; line-height: 1.35; display: flex; gap: 22px; }
+  ul.clean li b { color: var(--ink); font-weight: 600; }
+  ul.clean li span.i { flex: none; width: 52px; color: var(--ember); font-weight: 600; }
+  .muted { color: var(--muted); }
+  code, pre { font-family: "JetBrains Mono", monospace; }
+  pre { background: #060404; border: 1px solid var(--line); border-radius: 22px; padding: 34px 40px; font-size: 30px; line-height: 1.55; color: #e9dccd; white-space: pre; }
+  pre .c { color: #7d6d60; } pre .k { color: var(--peach); } pre .g { color: var(--good); } pre .r { color: var(--bad); }
+  table { border-collapse: collapse; width: 100%; font-size: 34px; }
+  td, th { padding: 20px 18px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { font-size: 22px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .ok { color: var(--good); } .ko { color: var(--bad); } .wa { color: var(--warn); }
+  .big-num { font-family: Fraunces, serif; font-weight: 300; font-size: 180px; line-height: 1; }
+  .arrow { font-size: 90px; color: var(--ember); align-self: center; }
+  .flow { display: flex; align-items: center; gap: 36px; }
+  .node { background: var(--panel); border: 1px solid var(--line); border-radius: 26px; padding: 36px 40px; text-align: center; min-width: 330px; }
+  .node b { display: block; font-size: 40px; margin-bottom: 10px; }
+  .node span { font-size: 28px; color: var(--muted); }
+  .link { font-family: "JetBrains Mono", monospace; font-size: 30px; color: var(--muted); margin-top: 18px; }
+  blockquote { font-family: Fraunces, serif; font-weight: 300; font-size: 100px; line-height: 1.1; }
+</style>
+</head>
+<body>
+
+<section class="slide" id="hook">
+  <div class="kicker">IA local · sin créditos</div>
+  <h1>Una landing de <em>película</em>,<br>generada en mi propia GPU</h1>
+  <p class="sub">Wan 2.2 en una RTX 5060 Ti · lo que salió mal · el truco que lo hizo 2× más rápido</p>
+</section>
+
+<section class="slide" id="idea">
+  <div class="kicker">La idea</div>
+  <h2>¿Se puede hacer <em>gratis</em>?</h2>
+  <div class="row">
+    <div class="card bad"><h3>El video original</h3><p>Claude Code + Higgsfield<br>Los videos se generan en la nube<br><b class="ko">Créditos de pago</b></p></div>
+    <div class="arrow">→</div>
+    <div class="card good"><h3>Mi versión</h3><p>Claude Code + Wan 2.2<br>Los videos se generan en mi RTX<br><b class="ok">Gratis e ilimitado</b></p></div>
+  </div>
+</section>
+
+<section class="slide" id="setup">
+  <div class="kicker">El setup</div>
+  <h2>Mi laptop manda, <em>la PC genera</em></h2>
+  <div class="flow">
+    <div class="node"><b>Laptop</b><span>Claude Code<br>scripts</span></div>
+    <div class="arrow">⇄</div>
+    <div class="node"><b>Tailscale</b><span>red privada<br>entre mis equipos</span></div>
+    <div class="arrow">⇄</div>
+    <div class="node"><b>PC con RTX 5060 Ti</b><span>16 GB VRAM · 32 GB RAM<br>ComfyUI + Wan 2.2</span></div>
+  </div>
+</section>
+
+<section class="slide" id="modelos">
+  <div class="kicker">Modelos de video abiertos · octubre 2026</div>
+  <h2>¿Cuál entra en <em>16 GB</em>?</h2>
+  <table>
+    <tr><th>Modelo</th><th>16 GB</th><th>Licencia</th><th>Para esta landing</th></tr>
+    <tr><td><b>Wan 2.2 I2V 14B</b></td><td class="ok">fp8 ✓</td><td class="ok">Apache 2.0</td><td class="ok">el más fiel a la foto</td></tr>
+    <tr><td>LTX-2.5</td><td class="wa">justo (NVFP4)</td><td class="wa">gratis &lt; US$10M</td><td class="muted">más nuevo, con audio</td></tr>
+    <tr><td>HunyuanVideo 1.5</td><td class="ok">sí</td><td class="wa">licencia propia</td><td class="muted">se aleja más de la foto</td></tr>
+    <tr><td>MiniMax H3</td><td class="ko">24–32 GB</td><td class="ko">restringida</td><td class="muted">no entra bien</td></tr>
+  </table>
+</section>
+
+<section class="slide" id="paso1">
+  <div class="kicker">Paso 1 de 4</div>
+  <h2>ComfyUI <em>portable</em></h2>
+  <ul class="clean">
+    <li><span class="i">→</span><span>Versión <b>portable para NVIDIA</b>, desde el GitHub de ComfyUI</span></li>
+    <li><span class="i">→</span><span>Serie 50 (Blackwell): necesitas <b>CUDA 12.8 o más nueva</b></span></li>
+    <li><span class="i">→</span><span>Trae su propio Python: <b>no instales nada más</b></span></li>
+  </ul>
+</section>
+
+<section class="slide" id="paso2">
+  <div class="kicker">Paso 2 de 4 · unos 35 GB, en un SSD</div>
+  <h2>Los <em>seis</em> archivos</h2>
+<pre><span class="c">ComfyUI/models/</span>
+  <span class="k">diffusion_models/</span>  wan2.2_i2v_high_noise_14B_fp8_scaled
+                     wan2.2_i2v_low_noise_14B_fp8_scaled
+  <span class="k">text_encoders/</span>     umt5_xxl_fp8_e4m3fn_scaled
+  <span class="k">vae/</span>               wan_2.1_vae
+  <span class="k">loras/</span>             wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise
+                     wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise
+<span class="c"># Hugging Face: Comfy-Org/Wan_2.2_ComfyUI_Repackaged</span></pre>
+</section>
+
+<section class="slide" id="paso3">
+  <div class="kicker">Paso 3 de 4</div>
+  <h2>Acceso <em>solo</em> por Tailscale</h2>
+<pre><span class="c"># run_nvidia_gpu.bat → al final de la línea de main.py</span>
+--listen 0.0.0.0 --port 8188
+
+<span class="c"># PowerShell como administrador: solo la red de Tailscale</span>
+New-NetFirewallRule -DisplayName "ComfyUI Tailscale" `
+  -Direction Inbound -Protocol TCP -LocalPort 8188 `
+  -RemoteAddress <span class="g">100.64.0.0/10</span> -Action Allow</pre>
+</section>
+
+<section class="slide" id="paso4">
+  <div class="kicker">Paso 4 de 4</div>
+  <h2>La RAM <em>también</em> cuenta</h2>
+  <div class="row">
+    <div class="card good"><h3>32 GB de RAM o más</h3><p>Wan 2.2 <b>14B</b> en fp8<br>Parte del modelo pasa a la RAM</p></div>
+    <div class="card"><h3>16 GB de RAM</h3><p>Wan 2.2 <b>5B</b><br>Entra entero en la GPU</p></div>
+  </div>
+</section>
+
+<section class="slide" id="atencion">
+  <div class="kicker">¿Qué es la atención?</div>
+  <h2>Cada pedacito mira <em>a todos los demás</em></h2>
+  <svg viewBox="0 0 1640 380" width="1640" height="380" aria-hidden="true">
+    <g id="grid"></g>
+  </svg>
+</section>
+
+<section class="slide" id="sage">
+  <div class="kicker">SageAttention</div>
+  <h2>El mismo cálculo, <em>con números más cortos</em></h2>
+  <div class="row" style="align-items:center">
+    <div class="card"><h3>Atención normal · 16 bits</h3><p class="big-num" style="font-size:120px">3,14159265</p></div>
+    <div class="arrow">→</div>
+    <div class="card good"><h3>SageAttention · 8 bits</h3><p class="big-num ok" style="font-size:120px">3,14</p></div>
+  </div>
+  <p class="sub">Casi el mismo resultado. La tarjeta lo calcula mucho más rápido.</p>
+</section>
+
+<section class="slide" id="sage_tip">
+  <div class="kicker">Serie 50 · Windows</div>
+  <h2>Cómo instalarlo <em>sin frames negros</em></h2>
+<pre><span class="r">✗ pip install sageattention</span>        <span class="c"># baja la 1.0.6: frames negros</span>
+<span class="g">✓ wheel precompilado para tu PyTorch</span>   <span class="c"># woct0rdho/SageAttention</span>
+<span class="g">✓ triton-windows</span>                      <span class="c"># versión compatible con tu PyTorch</span>
+<span class="g">✓ nodo PathchSageAttentionKJ</span>          <span class="c"># de KJNodes, por flujo</span></pre>
+</section>
+
+<section class="slide" id="error">
+  <div class="kicker">Mi error</div>
+  <h2>Lo di por perdido… <em>y era mi configuración</em></h2>
+  <table>
+    <tr><th>Prueba</th><th>Pasos sin LoRA</th><th>cfg</th><th>Prompt</th><th>Resultado</th></tr>
+    <tr><td>C, D, E</td><td>2 de 6–8</td><td>3.5</td><td>"warm lights glowing"</td><td class="ko">luces navideñas</td></tr>
+    <tr><td>F, G</td><td>2–3 de 6–10</td><td>2–3.5</td><td>"warm lights glowing"</td><td class="ko">un arco iluminado</td></tr>
+    <tr><td>H</td><td>4 de 12</td><td>2.5</td><td>"warm lights glowing"</td><td class="ok">fiel a la foto</td></tr>
+    <tr><td>I, J</td><td>2–4 de 6–12</td><td>2–2.5</td><td>neutro</td><td class="ok">fiel a la foto</td></tr>
+  </table>
+</section>
+
+<section class="slide" id="leccion">
+  <div class="kicker">La lección</div>
+  <blockquote>Si el prompt dice <em>luces</em>,<br>el modelo dibuja luces.</blockquote>
+  <p class="sub">Describe lo que hay en la foto y el movimiento que quieres. Nada de adjetivos que se puedan dibujar.</p>
+</section>
+
+<section class="slide" id="voz">
+  <div class="kicker">Una cosa más</div>
+  <h2>Esta voz <em>es IA</em></h2>
+  <div class="row">
+    <div class="card"><h3>F5-TTS en español</h3><p>Clonada a partir de 20 s de mi voz<br>Corre en la misma RTX</p></div>
+    <div class="card"><h3>~2 s por frase</h3><p>Comparé con Chatterbox v3<br>F5 se parece más a mí</p></div>
+    <div class="card"><h3>Licencia no comercial</h3><p>Este video no está monetizado</p></div>
+  </div>
+</section>
+
+<section class="slide" id="resumen">
+  <div class="kicker">Resumen</div>
+  <ul class="clean">
+    <li><span class="i ok">✓</span><span><b>Wan 2.2</b> en tu propia GPU: sin créditos, sin límites</span></li>
+    <li><span class="i ok">✓</span><span><b>SageAttention</b>: el doble de rápido, misma calidad</span></li>
+    <li><span class="i ok">✓</span><span><b>720p</b> si hay caras · prompts que describan, no que decoren</span></li>
+  </ul>
+  <p class="link">github.com/Caro2870/landing-restaurante-wan22</p>
+</section>
+
+<script>
+  // Dibuja la cuadrícula de "pedacitos" con líneas de atención desde uno
+  const g = document.getElementById('grid'), cols = 22, rows = 6, w = 64, h = 52, gap = 10, ox = 40, oy = 20;
+  const sel = { c: 8, r: 2 }, ns = 'http://www.w3.org/2000/svg';
+  const cx = ox + sel.c * (w + gap) + w / 2, cy = oy + sel.r * (h + gap) + h / 2;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const x = ox + c * (w + gap), y = oy + r * (h + gap);
+    if ((r + c) % 3 === 0 && !(r === sel.r && c === sel.c)) {
+      const l = document.createElementNS(ns, 'line');
+      Object.entries({ x1: cx, y1: cy, x2: x + w / 2, y2: y + h / 2, stroke: '#e8743b', 'stroke-opacity': .28, 'stroke-width': 2 }).forEach(([k, v]) => l.setAttribute(k, v));
+      g.prepend(l);
+    }
+    const rect = document.createElementNS(ns, 'rect');
+    const on = r === sel.r && c === sel.c;
+    Object.entries({ x, y, width: w, height: h, rx: 8, fill: on ? '#e8743b' : '#2a1f18', stroke: 'rgba(246,238,228,.12)' }).forEach(([k, v]) => rect.setAttribute(k, v));
+    g.appendChild(rect);
+  }
+  // ?s=<id> muestra una sola lámina (para exportarla a imagen)
+  const id = new URLSearchParams(location.search).get('s') || 'hook';
+  document.getElementById(id)?.classList.add('on');
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: #0d0907; font-family: Inter, sans-serif; }
+  .bg { position: absolute; inset: 0; background: url(../frames/04/041.webp) center/cover; }
+  .bg::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(13, 9, 7, .96) 0%, rgba(13, 9, 7, .85) 42%, rgba(13, 9, 7, .1) 75%); }
+  .txt { position: absolute; left: 64px; top: 70px; width: 720px; }
+  .tag { display: inline-block; background: #e8743b; color: #1a0c05; font-weight: 800; font-size: 34px;
+    padding: 8px 20px; border-radius: 12px; letter-spacing: .02em; }
+  h1 { font-family: Fraunces, serif; font-weight: 600; font-size: 104px; line-height: .98; color: #f6eee4; margin-top: 26px; }
+  h1 em { color: #ffc59a; }
+  .gpu { margin-top: 30px; font-weight: 700; font-size: 38px; color: #f6eee4; }
+  .gpu b { color: #7fc98f; }
+  .badge { position: absolute; right: 50px; bottom: 50px; background: #f6eee4; color: #0d0907; border-radius: 28px;
+    padding: 18px 30px; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); transform: rotate(-4deg); }
+  .badge b { display: block; font-size: 92px; font-weight: 800; line-height: 1; }
+  .badge span { font-size: 28px; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="txt">
+    <span class="tag">SIN CRÉDITOS</span>
+    <h1>Video IA <em>gratis</em> en mi PC</h1>
+    <p class="gpu">RTX 5060 Ti · <b>Wan 2.2</b></p>
+  </div>
+  <div class="badge"><b>2×</b><span>más rápido</span></div>
+</body>
+</html>

@@ -13,6 +13,9 @@ URL = f"http://{HOST}:8191/tts"
 REF = os.path.join(ROOT, "voz", "referencia_corta.wav")
 REF_TEXT = os.path.join(ROOT, "voz", "referencia_corta_texto.txt")
 SEED = 7
+# Pronunciación elegida por pronunciacion.py: clave "seccion:linea" → {"voz", "seed"}
+_P = os.path.join(BASE, "pronunciacion.json")
+PRONUNCIACION = json.load(open(_P, encoding="utf-8")) if os.path.exists(_P) else {}
 
 
 def escribir_md():
@@ -43,8 +46,9 @@ def generar(solo=None):
                 continue
             if solo is None and os.path.exists(path):
                 continue  # ya generada
-            body = json.dumps({"text": l.get("voz") or l["texto"], "ref_wav_b64": ref_b64,
-                               "ref_text": ref_text, "seed": SEED}).encode()
+            elegida = PRONUNCIACION.get(key, {})
+            body = json.dumps({"text": elegida.get("voz") or l.get("voz") or l["texto"], "ref_wav_b64": ref_b64,
+                               "ref_text": ref_text, "seed": elegida.get("seed", SEED)}).encode()
             r = urllib.request.urlopen(urllib.request.Request(URL, body, {"Content-Type": "application/json"}), timeout=600)
             open(path, "wb").write(r.read())
             print(key, r.headers["X-Gen-Seconds"], "s", flush=True)
