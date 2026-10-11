@@ -3,7 +3,8 @@
 #       python tts_server.py --model f5 --port 8191
 #       python tts_server.py --model xtts --port 8192
 #
-# POST /tts  JSON {"text": str, "ref_wav_b64": str, "ref_text": str (opcional), "seed": int}
+# POST /tts  JSON {"text": str, "ref_wav_b64": str, "ref_text": str (opcional), "seed": int,
+#                  "speed": float (opcional, F5), "fix_duration": float (opcional, F5)}
 #  → audio/wav, con la cabecera X-Gen-Seconds (tiempo de generación)
 import argparse, base64, io, json, os, tempfile, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -29,7 +30,7 @@ def load_chatterbox():
     # Sin t3_model la librería carga el v2 legacy
     model = ChatterboxMultilingualTTS.from_pretrained(device="cuda", t3_model=os.environ.get("CHATTERBOX_T3", "v3"))
 
-    def gen(text, ref_path, ref_text):
+    def gen(text, ref_path, ref_text, **opts):
         wav = model.generate(text, language_id="es", audio_prompt_path=ref_path)
         return wav.cpu(), model.sr
     return gen
@@ -44,8 +45,8 @@ def load_f5():
         # F5-TTS original (inglés/chino): para generar términos en inglés con la misma voz
         f5 = F5TTS(device="cuda")
 
-        def gen(text, ref_path, ref_text):
-            wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text)
+        def gen(text, ref_path, ref_text, **opts):
+            wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text, **opts)
             return torch.as_tensor(wav).reshape(1, -1).float(), sr
         return gen
     ckpt = hf_hub_download(repo, os.environ.get("F5_CKPT", "model_1200000.safetensors"))
@@ -54,8 +55,8 @@ def load_f5():
     # por defecto, y con esa arquitectura los pesos no encajan y el modelo balbucea.
     f5 = F5TTS(model=os.environ.get("F5_MODEL", "F5TTS_Base"), ckpt_file=ckpt, vocab_file=vocab, device="cuda")
 
-    def gen(text, ref_path, ref_text):
-        wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text)
+    def gen(text, ref_path, ref_text, **opts):
+        wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text, **opts)
         return torch.as_tensor(wav).reshape(1, -1).float(), sr
     return gen
 
@@ -64,7 +65,7 @@ def load_xtts():
     from TTS.api import TTS
     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to("cuda")
 
-    def gen(text, ref_path, ref_text):
+    def gen(text, ref_path, ref_text, **opts):
         wav = tts.tts(text=text, speaker_wav=ref_path, language="es")
         return torch.tensor(wav).reshape(1, -1).float(), tts.synthesizer.output_sample_rate
     return gen
@@ -95,7 +96,9 @@ class Handler(BaseHTTPRequestHandler):
                 torch.manual_seed(int(req.get("seed", 0)))
                 torch.cuda.synchronize()
                 t0 = time.time()
-                wav, sr = GEN(req["text"], ref_path, req.get("ref_text"))
+                # Opciones de F5: speed (1.0 = normal) y fix_duration (segundos totales, referencia incluida)
+                opts = {k: float(req[k]) for k in ("speed", "fix_duration") if req.get(k) is not None}
+                wav, sr = GEN(req["text"], ref_path, req.get("ref_text"), **opts)
                 torch.cuda.synchronize()
                 secs = time.time() - t0
             os.unlink(ref_path)
