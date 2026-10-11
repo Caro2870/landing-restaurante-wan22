@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casa Brasa — Cocina de fuego lento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0907;
+    --ink: #f6eee4;
+    --muted: #b9a998;
+    --ember: #e8743b;
+    --line: rgba(246, 238, 228, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: Fraunces, Georgia, serif; font-weight: 300; line-height: 1.05; letter-spacing: -.01em; }
+
+  /* Barra superior */
+  .nav { position: fixed; inset: 0 0 auto; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 20px clamp(16px, 4vw, 48px); mix-blend-mode: normal; }
+  .logo { font-family: Fraunces, serif; font-weight: 600; font-size: 20px; letter-spacing: .02em; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--ember); }
+  .btn { display: inline-block; padding: 10px 20px; border: 1px solid var(--ink); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .25s, color .25s; }
+  .btn:hover { background: var(--ink); color: var(--bg); }
+  .btn.solid { background: var(--ember); border-color: var(--ember); color: #1a0c05; }
+  .btn.solid:hover { background: var(--ink); border-color: var(--ink); }
+
+  /* Película */
+  .film { position: relative; }
+  .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(13, 9, 7, .75) 100%),
+                linear-gradient(to top, rgba(13, 9, 7, .85), transparent 45%); }
+
+  .caption { text-shadow: 0 2px 24px rgba(0, 0, 0, .65), 0 1px 3px rgba(0, 0, 0, .5); }
+  .caption { position: absolute; left: clamp(16px, 6vw, 96px); right: 16px; bottom: clamp(56px, 12vh, 140px); max-width: 720px; opacity: 0; will-change: opacity, transform; pointer-events: none; }
+  .caption .kicker { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ember); margin-bottom: 14px; }
+  .caption h1 { font-size: clamp(56px, 11vw, 148px); }
+  .caption h2 { font-size: clamp(38px, 7vw, 88px); }
+  .caption h2 em { font-style: italic; color: #ffc59a; }
+  .caption p { margin-top: 16px; max-width: 460px; color: var(--muted); font-size: clamp(15px, 1.4vw, 18px); }
+
+  .chapters { position: absolute; right: clamp(16px, 3vw, 40px); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
+  .chapters i { display: block; width: 3px; height: 22px; border-radius: 2px; background: var(--line); transition: background .3s, height .3s; }
+  .chapters i.on { background: var(--ember); height: 40px; }
+
+  .hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); transition: opacity .4s; }
+
+  .loader { position: absolute; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 2; transition: opacity .6s; }
+  .loader div { width: min(240px, 60vw); height: 2px; background: var(--line); overflow: hidden; }
+  .loader span { display: block; height: 100%; width: 0; background: var(--ember); transition: width .2s; }
+
+  /* Contenido final */
+  section.info { position: relative; z-index: 1; background: var(--bg); padding: clamp(72px, 12vw, 160px) clamp(16px, 6vw, 96px); border-top: 1px solid var(--line); }
+  .info-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(40px, 6vw, 96px); max-width: 1200px; margin: 0 auto; }
+  .info h2 { font-size: clamp(40px, 6vw, 76px); margin-bottom: 24px; }
+  .info h2 em { color: var(--ember); }
+  .info p.lead { color: var(--muted); font-size: 18px; max-width: 480px; margin-bottom: 36px; }
+  .menu { list-style: none; }
+  .menu li { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .menu b { font-family: Fraunces, serif; font-weight: 300; font-size: 22px; }
+  .menu small { display: block; color: var(--muted); font-size: 14px; }
+  .menu span { color: var(--ember); white-space: nowrap; font-weight: 500; }
+  .facts { display: grid; gap: 28px; margin-top: 56px; grid-template-columns: repeat(3, 1fr); max-width: 1200px; margin-inline: auto; }
+  .facts h3 { font-size: 14px; font-family: Inter, sans-serif; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; }
+  .facts p { color: var(--muted); }
+  footer { padding: 32px clamp(16px, 6vw, 96px); color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); background: var(--bg); position: relative; z-index: 1; }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 760px) {
+    .info-grid, .facts { grid-template-columns: 1fr; }
+    .chapters { display: none; }
+    .nav .btn { padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <a class="logo" href="#">Casa <span>Brasa</span></a>
+  <a class="btn" href="#reservas">Reservar</a>
+</header>
+
+<main>
+  <section class="film" id="film">
+    <div class="stage">
+      <canvas id="canvas"></canvas>
+      <div class="vignette"></div>
+
+      <div class="caption" data-scene="0">
+        <div class="kicker">Desde 2009 · Cocina de fuego lento</div>
+        <h1>Casa Brasa</h1>
+        <p>Una terraza, una parrilla encendida y la mesa siempre lista.</p>
+      </div>
+      <div class="caption" data-scene="1">
+        <div class="kicker">El salón</div>
+        <h2>Cuando cae la noche, <em>todo se enciende</em>.</h2>
+      </div>
+      <div class="caption" data-scene="2">
+        <div class="kicker">La mesa</div>
+        <h2>Cada plato es <em>una pausa</em>.</h2>
+        <p>Producto de temporada, servido sin prisa.</p>
+      </div>
+      <div class="caption" data-scene="3">
+        <div class="kicker">Del mar</div>
+        <h2>Salmón sellado, <em>salsa fresca</em>.</h2>
+      </div>
+      <div class="caption" data-scene="4">
+        <div class="kicker">De la brasa</div>
+        <h2>Doce horas <em>de humo lento</em>.</h2>
+        <p>Nuestras costillas no se apuran. Por eso se deshacen.</p>
+      </div>
+      <div class="caption" data-scene="5">
+        <div class="kicker">Para compartir</div>
+        <h2>Lo mejor <em>se comparte</em>.</h2>
+      </div>
+
+      <nav class="chapters" aria-hidden="true"></nav>
+      <div class="hint" id="hint">Desliza</div>
+      <div class="loader" id="loader"><div><span id="bar"></span></div></div>
+    </div>
+  </section>
+
+  <section class="info" id="reservas">
+    <div class="info-grid">
+      <div>
+        <h2>Tu mesa <em>te espera</em>.</h2>
+        <p class="lead">Reserva para esta noche o el fin de semana. Para grupos de más de 8 personas, escríbenos y armamos un menú a medida.</p>
+        <a class="btn solid" href="#">Reservar mesa</a>
+      </div>
+      <ul class="menu">
+        <li><div><b>Costillas a la brasa</b><small>12 h de ahumado, glaseado de la casa</small></div><span>$ 42</span></li>
+        <li><div><b>Salmón sellado</b><small>Salsa de pepino y tomate, espinaca</small></div><span>$ 38</span></li>
+        <li><div><b>Burger Brasa</b><small>Doble carne, cheddar ahumado, papas</small></div><span>$ 24</span></li>
+        <li><div><b>Plato del día</b><small>Pregunta por la sugerencia del chef</small></div><span>$ 30</span></li>
+      </ul>
+    </div>
+    <div class="facts">
+      <div><h3>Horario</h3><p>Mar a dom · 12:30 – 23:30</p></div>
+      <div><h3>Dirección</h3><p>Av. del Fuego 128, Centro</p></div>
+      <div><h3>Contacto</h3><p>hola@casabrasa.test</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Restaurante ficticio para prueba de concepto. Fotos: <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a>, animadas con Wan 2.2 en local.
+</footer>
+
+<script src="frames/manifest.js"></script>
+<script>
+(() => {
+  const SCENE_VH = 170;          // alto de scroll por escena (en vh)
+  const FADE = 0.16;             // fracción final de cada escena que se funde con la siguiente
+
+  // Escenas con gente: foto original con movimiento de cámara (las caras quedan intactas).
+  // Escenas de comida: secuencia de frames generada con Wan 2.2.
+  // zoom/fx/fy: [inicio, fin] del acercamiento y del punto focal (0–1)
+  const SCENES = [
+    { video: '01_720p' },  // versión con IA a 720p (alternativa: foto con movimiento, ver abajo)
+    // { photo: 'fotos/01.jpg', zoom: [1.0, 1.22], fx: [0.5, 0.42], fy: [0.5, 0.62] },
+    { photo: 'fotos/02.jpg', zoom: [1.05, 1.25], fx: [0.35, 0.6], fy: [0.45, 0.5] },
+    { video: '03' },
+    { video: '04' },
+    { video: '05' },
+    { photo: 'fotos/06.jpg', zoom: [1.22, 1.02], fx: [0.5, 0.5], fy: [0.6, 0.45] },
+  ];
+  // Si los frames de un clip aún no existen, se usa la foto con un acercamiento suave
+  SCENES.forEach(s => {
+    if (s.video && !(window.FRAMES || {})[s.video]) {
+      Object.assign(s, { photo: `fotos/${s.video}.jpg`, zoom: [1.02, 1.15], fx: [0.5, 0.5], fy: [0.5, 0.5] });
+      delete s.video;
+    }
+  });
+  const scenes = SCENES;
+  const counts = SCENES.map(s => s.video ? (window.FRAMES || {})[s.video] || 1 : 1);
+  const film = document.getElementById('film');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const captions = [...document.querySelectorAll('.caption')];
+  const dotsBox = document.querySelector('.chapters');
+  const hint = document.getElementById('hint');
+
+  film.style.height = (scenes.length * SCENE_VH) + 'vh';
+  dotsBox.innerHTML = scenes.map(() => '<i></i>').join('');
+  const dots = [...dotsBox.children];
+
+  // Carga de frames: primero la escena 1 completa, el resto en segundo plano
+  const imgs = scenes.map((s, i) => Array.from({ length: counts[i] }, (_, f) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.dataset.src = s.photo || `frames/${s.video}/${String(f + 1).padStart(3, '0')}.webp`;
+    return img;
+  }));
+  const load = img => new Promise(res => { img.onload = img.onerror = res; img.src = img.dataset.src; });
+
+  const bar = document.getElementById('bar');
+  let done = 0;
+  Promise.all(imgs[0].map(img => load(img).then(() => { bar.style.width = (++done / imgs[0].length * 100) + '%'; })))
+    .then(() => {
+      document.getElementById('loader').style.opacity = 0;
+      setTimeout(() => document.getElementById('loader').remove(), 700);
+      draw();
+      (async () => { for (const scene of imgs.slice(1)) await Promise.all(scene.map(load)); })();
+    });
+
+  // Dibuja una imagen cubriendo el canvas (como object-fit: cover), con un leve zoom
+  // fx/fy: punto focal (0–1) que queda centrado al hacer zoom
+  function cover(img, alpha, zoom, fx = 0.5, fy = 0.5) {
+    if (!img || !img.complete || !img.naturalWidth) return false;
+    const cw = canvas.width, ch = canvas.height;
+    const s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight) * zoom;
+    const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, (cw - w) * fx, (ch - h) * fy, w, h);
+    return true;
+  }
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  // Dibuja la escena i en el instante t (0–1)
+  function scene(i, t, alpha) {
+    const s = SCENES[i];
+    if (s.photo) {
+      const e = ease(t);
+      return cover(imgs[i][0], alpha, lerp(s.zoom[0], s.zoom[1], e), lerp(s.fx[0], s.fx[1], e), lerp(s.fy[0], s.fy[1], e));
+    }
+    return cover(nearest(i, Math.round(t * (counts[i] - 1))), alpha, 1.02 + t * 0.04);
+  }
+
+  // Si el frame exacto aún no cargó, usa el más cercano ya disponible
+  function nearest(scene, f) {
+    const arr = imgs[scene];
+    for (let d = 0; d < arr.length; d++) {
+      if (arr[f - d]?.naturalWidth) return arr[f - d];
+      if (arr[f + d]?.naturalWidth) return arr[f + d];
+    }
+    return null;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    draw();
+  }
+
+  const ramp = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+
+  function draw() {
+    const rect = film.getBoundingClientRect();
+    const scrollable = film.offsetHeight - innerHeight;
+    const p = Math.min(1, Math.max(0, -rect.top / scrollable)) * scenes.length;
+    const i = Math.min(scenes.length - 1, Math.floor(p));
+    const t = p - i;                                   // progreso dentro de la escena (0–1)
+    ctx.fillStyle = '#0d0907';
+    ctx.globalAlpha = 1;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    scene(i, Math.min(t / (1 - FADE), 1), 1);
+
+    // Fundido hacia el inicio de la siguiente escena
+    const fade = ramp(t, 1 - FADE, 1);
+    if (fade > 0 && i < scenes.length - 1) scene(i + 1, 0, fade);
+    ctx.globalAlpha = 1;
+
+    captions.forEach((c, k) => {
+      let o = 0;
+      if (k === i) o = (k === 0 ? 1 : ramp(t, 0.05, 0.22)) * (1 - ramp(t, 0.62, 0.8));
+      c.style.opacity = o;
+      c.style.transform = `translateY(${(1 - o) * 24}px)`;
+    });
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    hint.style.opacity = p < 0.05 ? 1 : 0;
+  }
+
+  let ticking = false;
+  addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(() => { draw(); ticking = false; }); }
+  }, { passive: true });
+  addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>

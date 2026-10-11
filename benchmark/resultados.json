@@ -1,0 +1,18 @@
+{
+  "A_base": {
+    "segundos": 166.1,
+    "error": null
+  },
+  "B_sage": {
+    "segundos": 80.9,
+    "error": null
+  },
+  "C_3samplers": {
+    "segundos": 239.2,
+    "error": null
+  },
+  "D_sage_3s": {
+    "segundos": 143.7,
+    "error": null
+  }
+}
