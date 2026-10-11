@@ -26,7 +26,8 @@ LOCK = threading.Lock()  # una generación a la vez en la GPU
 
 def load_chatterbox():
     from chatterbox.mtl_tts import ChatterboxMultilingualTTS
-    model = ChatterboxMultilingualTTS.from_pretrained(device="cuda")
+    # Sin t3_model la librería carga el v2 legacy
+    model = ChatterboxMultilingualTTS.from_pretrained(device="cuda", t3_model=os.environ.get("CHATTERBOX_T3", "v3"))
 
     def gen(text, ref_path, ref_text):
         wav = model.generate(text, language_id="es", audio_prompt_path=ref_path)
@@ -39,9 +40,19 @@ def load_f5():
     from huggingface_hub import hf_hub_download
     from f5_tts.api import F5TTS
     repo = os.environ.get("F5_REPO", "jpgallegoar/F5-Spanish")
+    if repo == "base":
+        # F5-TTS original (inglés/chino): para generar términos en inglés con la misma voz
+        f5 = F5TTS(device="cuda")
+
+        def gen(text, ref_path, ref_text):
+            wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text)
+            return torch.as_tensor(wav).reshape(1, -1).float(), sr
+        return gen
     ckpt = hf_hub_download(repo, os.environ.get("F5_CKPT", "model_1200000.safetensors"))
     vocab = hf_hub_download(repo, os.environ.get("F5_VOCAB", "vocab.txt"))
-    f5 = F5TTS(ckpt_file=ckpt, vocab_file=vocab, device="cuda")
+    # F5-Spanish se entrenó con la arquitectura original (F5TTS_Base); f5-tts 1.x carga F5TTS_v1_Base
+    # por defecto, y con esa arquitectura los pesos no encajan y el modelo balbucea.
+    f5 = F5TTS(model=os.environ.get("F5_MODEL", "F5TTS_Base"), ckpt_file=ckpt, vocab_file=vocab, device="cuda")
 
     def gen(text, ref_path, ref_text):
         wav, sr, _ = f5.infer(ref_file=ref_path, ref_text=ref_text or "", gen_text=text)

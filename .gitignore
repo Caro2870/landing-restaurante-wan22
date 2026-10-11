@@ -2,3 +2,6 @@
 __pycache__/
 contact.png
 voz/
+video/audio/
+video/out/
+video/build/
