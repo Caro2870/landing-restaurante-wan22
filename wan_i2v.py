@@ -13,7 +13,7 @@ def upload(path):
     return json.load(urllib.request.urlopen(r))["name"]
 
 name = upload(img_path)
-neg = "blurry, distorted, deformed food, extra objects, text, watermark, low quality, flicker, morphing"
+neg = "blurry, distorted, deformed faces, deformed food, extra objects, text, watermark, low quality, flicker, morphing"
 seed = int(time.time())
 wf = {
  "1": {"class_type": "UNETLoader", "inputs": {"unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors", "weight_dtype": "default"}},
@@ -34,6 +34,12 @@ wf = {
  "16": {"class_type": "CreateVideo", "inputs": {"images": ["15", 0], "fps": 16.0}},
  "17": {"class_type": "SaveVideo", "inputs": {"video": ["16", 0], "filename_prefix": "video/landing", "format": "auto", "codec": "auto"}},
 }
+# SageAttention 2.2 vía KJNodes: ~2x más rápido en la RTX 5060 Ti (ver README). WAN_SAGE=0 para desactivar.
+if os.environ.get("WAN_SAGE", "1") != "0":
+    wf["20"] = {"class_type": "PathchSageAttentionKJ", "inputs": {"model": ["1", 0], "sage_attention": "auto"}}
+    wf["21"] = {"class_type": "PathchSageAttentionKJ", "inputs": {"model": ["2", 0], "sage_attention": "auto"}}
+    wf["3"]["inputs"]["model"] = ["20", 0]
+    wf["4"]["inputs"]["model"] = ["21", 0]
 r = urllib.request.Request(HOST + "/prompt", json.dumps({"prompt": wf}).encode(), {"Content-Type": "application/json"})
 try:
     pid = json.load(urllib.request.urlopen(r))["prompt_id"]

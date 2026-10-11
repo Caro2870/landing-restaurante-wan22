@@ -24,6 +24,10 @@
   .nav { position: fixed; inset: 0 0 auto; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 20px clamp(16px, 4vw, 48px); mix-blend-mode: normal; }
   .logo { font-family: Fraunces, serif; font-weight: 600; font-size: 20px; letter-spacing: .02em; color: var(--ink); text-decoration: none; }
   .logo span { color: var(--ember); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .switch { display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(13, 9, 7, .55); backdrop-filter: blur(8px); }
+  .switch a { padding: 7px 14px; border-radius: 999px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; }
+  .switch a.on { background: var(--ink); color: var(--bg); }
   .btn { display: inline-block; padding: 10px 20px; border: 1px solid var(--ink); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .25s, color .25s; }
   .btn:hover { background: var(--ink); color: var(--bg); }
   .btn.solid { background: var(--ember); border-color: var(--ember); color: #1a0c05; }
@@ -75,7 +79,8 @@
   @media (max-width: 760px) {
     .info-grid, .facts { grid-template-columns: 1fr; }
     .chapters { display: none; }
-    .nav .btn { padding: 8px 14px; }
+    .nav .btn { display: none; }
+    .switch a { padding: 6px 11px; font-size: 12px; }
   }
 </style>
 </head>
@@ -83,7 +88,13 @@
 
 <header class="nav">
   <a class="logo" href="#">Casa <span>Brasa</span></a>
-  <a class="btn" href="#reservas">Reservar</a>
+  <div class="nav-right">
+    <nav class="switch" aria-label="Versión de la landing">
+      <a href="?v=ia" data-v="ia">Video IA</a>
+      <a href="?v=fotos" data-v="fotos">Fotos</a>
+    </nav>
+    <a class="btn" href="#reservas">Reservar</a>
+  </div>
 </header>
 
 <main>
@@ -161,19 +172,23 @@
   // Escenas con gente: foto original con movimiento de cámara (las caras quedan intactas).
   // Escenas de comida: secuencia de frames generada con Wan 2.2.
   // zoom/fx/fy: [inicio, fin] del acercamiento y del punto focal (0–1)
-  const SCENES = [
-    { video: '01_720p' },  // versión con IA a 720p (alternativa: foto con movimiento, ver abajo)
-    // { photo: 'fotos/01.jpg', zoom: [1.0, 1.22], fx: [0.5, 0.42], fy: [0.5, 0.62] },
-    { photo: 'fotos/02.jpg', zoom: [1.05, 1.25], fx: [0.35, 0.6], fy: [0.45, 0.5] },
-    { video: '03' },
-    { video: '04' },
-    { video: '05' },
-    { photo: 'fotos/06.jpg', zoom: [1.22, 1.02], fx: [0.5, 0.5], fy: [0.6, 0.45] },
-  ];
+  // Dos versiones de las escenas con gente: ?v=ia (clips Wan 720p) o ?v=fotos (foto + movimiento)
+  const VERSION = new URLSearchParams(location.search).get('v') === 'fotos' ? 'fotos' : 'ia';
+  const people = {
+    fotos: [
+      { photo: 'fotos/01.jpg', zoom: [1.0, 1.22], fx: [0.5, 0.42], fy: [0.5, 0.62] },
+      { photo: 'fotos/02.jpg', zoom: [1.05, 1.25], fx: [0.35, 0.6], fy: [0.45, 0.5] },
+      { photo: 'fotos/06.jpg', zoom: [1.22, 1.02], fx: [0.5, 0.5], fy: [0.6, 0.45] },
+    ],
+    ia: [{ video: '01_720p' }, { video: '02_720p' }, { video: '06_720p' }],
+  }[VERSION];
+  const SCENES = [people[0], people[1], { video: '03' }, { video: '04' }, { video: '05' }, people[2]];
+
+  document.querySelectorAll('.switch a').forEach(a => a.classList.toggle('on', a.dataset.v === VERSION));
   // Si los frames de un clip aún no existen, se usa la foto con un acercamiento suave
   SCENES.forEach(s => {
     if (s.video && !(window.FRAMES || {})[s.video]) {
-      Object.assign(s, { photo: `fotos/${s.video}.jpg`, zoom: [1.02, 1.15], fx: [0.5, 0.5], fy: [0.5, 0.5] });
+      Object.assign(s, { photo: `fotos/${s.video.split('_')[0]}.jpg`, zoom: [1.02, 1.15], fx: [0.5, 0.5], fy: [0.5, 0.5] });
       delete s.video;
     }
   });
