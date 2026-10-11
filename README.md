@@ -13,8 +13,17 @@ Misma foto, mismo prompt, misma semilla (`424242`), 832×480, 81 frames (unos 5 
 |---|---|---:|---:|
 | **A** base | 4 pasos con LoRA lightx2v | **166 s** | — |
 | **B** SageAttention | A + SageAttention 2.2 (`PathchSageAttentionKJ`, modo `auto`) | **81 s** | **2,05× más rápido** |
-| C 3 samplers | 2 pasos sin LoRA (cfg 3.5) + 4 con LoRA | 239 s | 0,69× |
-| D Sage + 3 samplers | C + SageAttention | 144 s | 1,16× |
+| C 3 samplers v1 | 6 pasos: 2 sin LoRA (cfg 3.5) + 4 con LoRA | 239 s | 0,69× · ❌ inventa luces |
+| D Sage + v1 | C + SageAttention | 144 s | 1,16× · ❌ inventa luces |
+| E Sage + v2 | 8 pasos: 2 sin LoRA (cfg 3.5) | 219 s | 0,76× · ❌ inventa luces |
+| F Sage + v3 | 6 pasos: 2 sin LoRA (cfg 2.0) | 144 s | 1,15× · ❌ inventa un arco |
+| G Sage + v4 | 10 pasos: 3 sin LoRA (cfg 3.5) | 225 s | 0,74× · ❌ inventa un arco |
+| H Sage + v5 | 12 pasos: 4 sin LoRA (cfg 2.5) | 273 s | 0,61× · ✅ fiel |
+| K Sage, prompt neutro | como B | 89 s | 1,87× · ✅ fiel |
+| I Sage + v3, prompt neutro | como F | 144 s | 1,15× · ✅ fiel |
+| J Sage + v5, prompt neutro | como H | 273 s | 0,61× · ✅ fiel |
+
+**Comparación interactiva (videos sincronizados, cortina y lupa): [benchmark.html](https://caro2870.github.io/landing-restaurante-wan22/benchmark.html)**
 
 ![A vs B](benchmark/A_vs_B.gif)
 
@@ -24,10 +33,11 @@ Misma foto, mismo prompt, misma semilla (`424242`), 832×480, 81 frames (unos 5 
 
 - **SageAttention reduce el tiempo a la mitad sin perder calidad visible.** La composición, la luz y el detalle quedan iguales que en A. El movimiento de la gente cambia un poco (PSNR de 22,9 dB contra A), porque la atención cuantizada lleva el muestreo por otra trayectoria, no porque se degrade. No aparecieron los frames negros que se reportan en Blackwell.
 - **El 2× es mayor que el 30 a 40 % que reportan los foros.** Puede deberse a que con 16 GB la atención pesa más en el tiempo total. Es un único run por variante, así que conviene tomarlo como una estimación.
-- **Las variantes C y D fallaron.** En el segundo 2, la escena se convierte en una fachada con luces navideñas que no estaba en la foto. Los parámetros probados (cfg 3.5 sin LoRA en 2 de 6 pasos, shift 5) no sirven. Esto no descarta la técnica de 3 samplers, pero esa configuración no debe usarse.
+- **Los 3 samplers fallaban por la combinación de prompt y configuración, no por la técnica.** Sin la LoRA y con un cfg mayor que 1, el modelo obedece mucho más al prompt. Con "warm lights glowing" y unos pinos en la foto, terminaba decorándolos con luces navideñas (C, D y E) o agregando un arco iluminado (F y G). Con más pasos y un cfg moderado (H), o con un prompt neutro (I y J), el resultado es fiel a la foto.
+- **No está claro que los 3 samplers den mejor movimiento.** Cuando funcionan, I y J no se ven claramente mejores que K, y tardan entre 1,6 y 3 veces más. Para esta foto, la configuración simple con SageAttention es la mejor relación calidad/tiempo. Con 3 samplers, conviene describir solo lo que hay en la foto y el movimiento, sin adjetivos que el modelo pueda "dibujar".
 - **Con caras, la resolución pesa más que el muestreo.** A 720p las caras de la terraza se ven claramente mejor que a 480p ([comparación](benchmark/benchmark_caras_480_vs_720.png)). Sin SageAttention cuesta unas 3 veces más tiempo.
 
-Videos completos: [A_base](benchmark/A_base.mp4) · [B_sage](benchmark/B_sage.mp4) · [C_3samplers](benchmark/C_3samplers.mp4) · [D_sage_3s](benchmark/D_sage_3s.mp4) · [resultados.json](benchmark/resultados.json)
+Videos completos: [A_base](benchmark/A_base.mp4) · [B_sage](benchmark/B_sage.mp4) · [C_3samplers](benchmark/C_3samplers.mp4) · [D_sage_3s](benchmark/D_sage_3s.mp4) · [H](benchmark/H_sage_3s_v5.mp4) · [K](benchmark/K_sage_neutro.mp4) · [I](benchmark/I_sage_3s_v3_neutro.mp4) · [J](benchmark/J_sage_3s_v5_neutro.mp4) · [resultados.json](benchmark/resultados.json)
 
 ## Estructura
 
@@ -40,6 +50,8 @@ wan_i2v.py          genera un clip: foto + prompt → ComfyUI → mp4
 generar_clips.sh    genera los 6 clips
 extraer_frames.py   mp4 → frames WebP (requiere imageio-ffmpeg)
 benchmark.py        benchmark A/B de variantes de Wan 2.2
+benchmark.html      comparación interactiva de los videos del benchmark
+tts/tts_server.py   servidor de voz (Chatterbox / F5-TTS) para el benchmark de clonación
 ```
 
 ## Uso

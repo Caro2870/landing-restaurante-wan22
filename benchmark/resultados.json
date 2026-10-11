@@ -14,5 +14,33 @@
   "D_sage_3s": {
     "segundos": 143.7,
     "error": null
+  },
+  "E_sage_3s_v2": {
+    "segundos": 218.6,
+    "error": null
+  },
+  "F_sage_3s_v3": {
+    "segundos": 144.0,
+    "error": null
+  },
+  "G_sage_3s_v4": {
+    "segundos": 224.9,
+    "error": null
+  },
+  "H_sage_3s_v5": {
+    "segundos": 273.4,
+    "error": null
+  },
+  "K_sage_neutro": {
+    "segundos": 88.9,
+    "error": null
+  },
+  "I_sage_3s_v3_neutro": {
+    "segundos": 143.6,
+    "error": null
+  },
+  "J_sage_3s_v5_neutro": {
+    "segundos": 273.3,
+    "error": null
   }
 }

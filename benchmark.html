@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benchmark SageAttention — Wan 2.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0907;
+    --panel: #17110d;
+    --ink: #f6eee4;
+    --muted: #b9a998;
+    --ember: #e8743b;
+    --good: #7fc98f;
+    --bad: #e06c6c;
+    --line: rgba(246, 238, 228, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/1.6 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--ember); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+
+  header { padding: 28px 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header a.back { color: var(--muted); text-decoration: none; font-size: 14px; }
+  header a.back:hover { color: var(--ink); }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 300; font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 20px 0 10px; }
+  h1 em { color: var(--ember); }
+  .sub { color: var(--muted); max-width: 760px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .stat small { display: block; color: var(--muted); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .stat b { font-family: Fraunces, serif; font-weight: 300; font-size: 36px; }
+  .stat.win b { color: var(--good); }
+
+  /* Barra de controles */
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .seg { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+  .seg button { border: 0; background: none; color: var(--muted); font: 500 13px Inter, sans-serif; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+  .seg button.on { background: var(--ink); color: var(--bg); }
+  select { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font: 500 13px Inter, sans-serif; }
+  .vs { color: var(--muted); font-size: 13px; }
+  .spacer { flex: 1; }
+
+  /* Escenario de video */
+  .stage { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pane { position: relative; overflow: hidden; border-radius: 12px; background: #000; aspect-ratio: 832 / 480; cursor: zoom-in; }
+  .pane.zoomed { cursor: zoom-out; }
+  .pane video { width: 100%; height: 100%; display: block; object-fit: cover; transform-origin: 50% 50%; transition: transform .15s; }
+  .label { position: absolute; left: 10px; top: 10px; z-index: 2; padding: 5px 10px; border-radius: 8px; background: rgba(0, 0, 0, .6); font-size: 13px; font-weight: 600; backdrop-filter: blur(6px); pointer-events: none; }
+  .label span { color: var(--muted); font-weight: 400; margin-left: 6px; }
+
+  /* Modo cortina */
+  .stage.wipe { grid-template-columns: 1fr; }
+  .stage.wipe .pane { grid-area: 1 / 1; }
+  .stage.wipe .pane.right { clip-path: inset(0 0 0 var(--cut, 50%)); }
+  .stage.wipe .pane.right .label { left: auto; right: 10px; }
+  .handle { display: none; position: absolute; top: 0; bottom: 0; left: var(--cut, 50%); width: 2px; background: var(--ink); z-index: 3; transform: translateX(-1px); cursor: ew-resize; touch-action: none; }
+  .handle::after { content: '⇆'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-size: 16px; }
+  .stage.wipe .handle { display: block; }
+  .stage.wipe .pane { cursor: default; }
+
+  /* Línea de tiempo */
+  .timeline { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .play { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--ember); color: #1a0c05; font-size: 16px; cursor: pointer; flex: none; }
+  .step { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; flex: none; }
+  input[type=range] { flex: 1; accent-color: var(--ember); }
+  .frame { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 92px; text-align: right; }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+  /* Tabla y conclusiones */
+  section { margin: 56px 0; }
+  h2 { font-family: Fraunces, serif; font-weight: 300; font-size: clamp(26px, 3.4vw, 38px); margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .tag.ok { background: rgba(127, 201, 143, .15); color: var(--good); }
+  .tag.ko { background: rgba(224, 108, 108, .15); color: var(--bad); }
+  .tag.ref { background: var(--line); color: var(--muted); }
+  ul.notes { list-style: none; display: grid; gap: 14px; }
+  ul.notes li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  ul.notes b { color: var(--ink); }
+  ul.notes span { color: var(--muted); }
+  .setup { color: var(--muted); font-size: 13px; }
+  figure img { width: 100%; border-radius: 12px; display: block; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  footer { padding: 32px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 760px) {
+    .stage { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr; }
+    .table-wrap { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="./">← Volver a la landing</a>
+    <a class="back" href="https://github.com/Caro2870/landing-restaurante-wan22">Código en GitHub</a>
+  </header>
+
+  <h1>Wan 2.2: <em>con y sin</em> SageAttention</h1>
+  <p class="sub">La misma foto, el mismo prompt y la misma semilla, generados en una RTX 5060 Ti de 16 GB. La única diferencia entre A y B es la atención: la normal de PyTorch contra SageAttention 2.2.</p>
+
+  <div class="stats">
+    <div class="stat"><small>A · sin SageAttention</small><b>166 s</b></div>
+    <div class="stat win"><small>B · con SageAttention</small><b>81 s</b></div>
+    <div class="stat win"><small>Aceleración</small><b>2,05×</b></div>
+  </div>
+
+  <div class="bar">
+    <div class="seg" id="mode">
+      <button data-mode="side" class="on">Lado a lado</button>
+      <button data-mode="wipe">Cortina</button>
+    </div>
+    <select id="left" aria-label="Video izquierdo"></select>
+    <span class="vs">vs</span>
+    <select id="right" aria-label="Video derecho"></select>
+    <span class="spacer"></span>
+    <div class="seg" id="speed">
+      <button data-rate="0.25">0,25×</button>
+      <button data-rate="0.5">0,5×</button>
+      <button data-rate="1" class="on">1×</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="pane left"><div class="label" id="labelL"></div><video id="vL" muted playsinline loop preload="auto"></video></div>
+    <div class="pane right"><div class="label" id="labelR"></div><video id="vR" muted playsinline loop preload="auto"></video></div>
+    <div class="handle" id="handle" role="slider" aria-label="Posición de la cortina" tabindex="0"></div>
+  </div>
+
+  <div class="timeline">
+    <button class="step" id="prev" aria-label="Frame anterior">‹</button>
+    <button class="play" id="play" aria-label="Reproducir">▶</button>
+    <button class="step" id="next" aria-label="Frame siguiente">›</button>
+    <input type="range" id="scrub" min="0" max="80" value="0" aria-label="Frame">
+    <span class="frame" id="frame">frame 1 / 81</span>
+  </div>
+  <p class="hint">Haz clic en un video para ampliarlo 2,5× en ese punto (los dos videos se amplían juntos). Usa ‹ › o las flechas del teclado para avanzar frame a frame.</p>
+
+  <section>
+    <h2>Las cuatro variantes</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Variante</th><th>Qué cambia</th><th class="num">Tiempo</th><th class="num">vs A</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td><b>A</b> base</td><td>4 pasos con la LoRA lightx2v</td><td class="num">166 s</td><td class="num">—</td><td><span class="tag ref">referencia</span></td></tr>
+        <tr><td><b>B</b> SageAttention</td><td>A + SageAttention 2.2 (KJNodes, modo auto)</td><td class="num">81 s</td><td class="num">2,05× más rápido</td><td><span class="tag ok">misma calidad</span></td></tr>
+        <tr><td><b>C</b> 3 samplers v1</td><td>6 pasos: 2 sin LoRA (cfg 3.5) + 4 con LoRA</td><td class="num">239 s</td><td class="num">0,69×</td><td><span class="tag ko">inventa luces</span></td></tr>
+        <tr><td><b>D</b> Sage + v1</td><td>C + SageAttention</td><td class="num">144 s</td><td class="num">1,16×</td><td><span class="tag ko">inventa luces</span></td></tr>
+        <tr><td><b>E</b> Sage + v2</td><td>8 pasos: 2 sin LoRA (cfg 3.5)</td><td class="num">219 s</td><td class="num">0,76×</td><td><span class="tag ko">inventa luces</span></td></tr>
+        <tr><td><b>F</b> Sage + v3</td><td>6 pasos: 2 sin LoRA (cfg 2.0)</td><td class="num">144 s</td><td class="num">1,15×</td><td><span class="tag ko">inventa un arco</span></td></tr>
+        <tr><td><b>G</b> Sage + v4</td><td>10 pasos: 3 sin LoRA (cfg 3.5)</td><td class="num">225 s</td><td class="num">0,74×</td><td><span class="tag ko">inventa un arco</span></td></tr>
+        <tr><td><b>H</b> Sage + v5</td><td>12 pasos: 4 sin LoRA (cfg 2.5)</td><td class="num">273 s</td><td class="num">0,61×</td><td><span class="tag ok">fiel a la foto</span></td></tr>
+        <tr><td colspan="5" style="color:var(--muted)">Con un prompt neutro, sin "warm lights glowing":</td></tr>
+        <tr><td><b>K</b> Sage</td><td>Como B, con prompt neutro</td><td class="num">89 s</td><td class="num">1,87×</td><td><span class="tag ok">fiel a la foto</span></td></tr>
+        <tr><td><b>I</b> Sage + v3</td><td>Como F, con prompt neutro</td><td class="num">144 s</td><td class="num">1,15×</td><td><span class="tag ok">fiel a la foto</span></td></tr>
+        <tr><td><b>J</b> Sage + v5</td><td>Como H, con prompt neutro</td><td class="num">273 s</td><td class="num">0,61×</td><td><span class="tag ok">fiel a la foto</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Qué se ve</h2>
+    <ul class="notes">
+      <li><b>B tarda la mitad y se ve igual.</b> <span>La fachada, la luz, los letreros y el nivel de detalle coinciden con A. No aparecieron frames negros, un fallo que se reporta con SageAttention en tarjetas Blackwell.</span></li>
+      <li><b>El movimiento de la gente no es idéntico.</b> <span>SageAttention cuantiza la atención, así que el muestreo toma una trayectoria un poco distinta y la gente camina diferente (PSNR de 22,9 dB contra A). Es una variación, no una pérdida de calidad: cambia como cambiaría con otra semilla.</span></li>
+      <li><b>Los 3 samplers fallaban por la combinación de prompt y configuración, no por la técnica.</b> <span>Sin la LoRA y con un cfg mayor que 1, el modelo obedece mucho más al prompt. Con "warm lights glowing" y unos pinos en la foto, terminaba decorándolos con luces navideñas (C, D y E) o agregando un arco iluminado (F y G). Con más pasos y un cfg moderado (H), o con un prompt neutro (I y J), el resultado es fiel a la foto.</span></li>
+      <li><b>No está claro que los 3 samplers den mejor movimiento.</b> <span>Cuando funcionan, I y J no se ven claramente mejores que K, y tardan entre 1,6 y 3 veces más. Para esta foto, la configuración simple con SageAttention es la mejor relación calidad/tiempo. Lección: con los 3 samplers, describe solo lo que hay en la foto y el movimiento que quieres, sin adjetivos que el modelo pueda "dibujar".</span></li>
+      <li><b>Es un solo run por variante.</b> <span>El 2× supera el 30 a 40 % que reportan los foros. Para una cifra firme haría falta repetir cada variante varias veces.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Resolución: 480p contra 720p</h2>
+    <figure>
+      <img src="benchmark/benchmark_caras_480_vs_720.png" alt="Recorte de las caras en el frame 60: arriba a 480p, borrosas; abajo a 720p, con rasgos reconocibles" loading="lazy">
+      <figcaption>Frame 60 recortado: arriba a 480p, abajo a 720p. Con caras pequeñas, la resolución importa más que cualquier ajuste del muestreo. Con SageAttention, un clip a 720p tarda unos 281 s.</figcaption>
+    </figure>
+  </section>
+
+  <p class="setup">Configuración: RTX 5060 Ti 16 GB · Ryzen 9 7900X · 32 GB de RAM · ComfyUI 0.39 portable · PyTorch 2.14 + CUDA 13.0 · Wan 2.2 I2V 14B fp8_scaled + LoRA lightx2v de 4 pasos · 832×480, 81 frames, 16 fps, semilla 424242 · el tiempo se mide desde que el trabajo empieza a ejecutarse, con los modelos ya cargados.</p>
+</div>
+
+<footer><div class="wrap">Fotos de Unsplash. Videos generados en local con Wan 2.2 (Apache 2.0).</div></footer>
+
+<script>
+(() => {
+  const VARIANTS = {
+    A_base:      { name: 'A · sin Sage',     time: '166 s' },
+    B_sage:      { name: 'B · SageAttention', time: '81 s' },
+    C_3samplers: { name: 'C · 3s v1 (falló)', time: '239 s' },
+    D_sage_3s:   { name: 'D · Sage + 3s v1 (falló)', time: '144 s' },
+    E_sage_3s_v2: { name: 'E · Sage + 3s, 8 pasos (falló)', time: '219 s' },
+    F_sage_3s_v3: { name: 'F · Sage + 3s, cfg 2 (falló)', time: '144 s' },
+    G_sage_3s_v4: { name: 'G · Sage + 3s, 10 pasos (falló)', time: '225 s' },
+    H_sage_3s_v5: { name: 'H · Sage + 3s, 12 pasos cfg 2.5', time: '273 s' },
+    K_sage_neutro: { name: 'K · Sage, prompt neutro', time: '89 s' },
+    I_sage_3s_v3_neutro: { name: 'I · Sage + 3s cfg 2, prompt neutro', time: '144 s' },
+    J_sage_3s_v5_neutro: { name: 'J · Sage + 3s 12 pasos, prompt neutro', time: '273 s' },
+  };
+  const FPS = 16, FRAMES = 81;
+  const $ = id => document.getElementById(id);
+  const vL = $('vL'), vR = $('vR'), stage = $('stage');
+  const selL = $('left'), selR = $('right');
+
+  for (const [k, v] of Object.entries(VARIANTS)) {
+    selL.add(new Option(v.name, k));
+    selR.add(new Option(v.name, k));
+  }
+  const params = new URLSearchParams(location.search);
+  selL.value = VARIANTS[params.get('a')] ? params.get('a') : 'A_base';
+  selR.value = VARIANTS[params.get('b')] ? params.get('b') : 'B_sage';
+
+  function load() {
+    const t = vL.currentTime || 0;
+    vL.src = `benchmark/${selL.value}.mp4`;
+    vR.src = `benchmark/${selR.value}.mp4`;
+    $('labelL').innerHTML = `${VARIANTS[selL.value].name}<span>${VARIANTS[selL.value].time}</span>`;
+    $('labelR').innerHTML = `${VARIANTS[selR.value].name}<span>${VARIANTS[selR.value].time}</span>`;
+    vL.currentTime = vR.currentTime = t;
+    if (playing) Promise.all([vL.play(), vR.play()]).catch(() => {});
+  }
+  selL.onchange = selR.onchange = load;
+
+  // Reproducción sincronizada: el izquierdo manda, el derecho se corrige si se desfasa
+  let playing = false;
+  const playBtn = $('play');
+  function setPlaying(p) {
+    playing = p;
+    playBtn.textContent = p ? '❚❚' : '▶';
+    playBtn.setAttribute('aria-label', p ? 'Pausar' : 'Reproducir');
+    if (p) { vR.currentTime = vL.currentTime; Promise.all([vL.play(), vR.play()]).catch(() => {}); }
+    else { vL.pause(); vR.pause(); vR.currentTime = vL.currentTime; }
+  }
+  playBtn.onclick = () => setPlaying(!playing);
+
+  const frameOf = t => Math.min(FRAMES - 1, Math.round(t * FPS));
+  function seekFrame(f) {
+    f = (f + FRAMES) % FRAMES;
+    if (playing) setPlaying(false);
+    vL.currentTime = vR.currentTime = (f + 0.5) / FPS;
+    tick(true);
+  }
+  $('prev').onclick = () => seekFrame(frameOf(vL.currentTime) - 1);
+  $('next').onclick = () => seekFrame(frameOf(vL.currentTime) + 1);
+  $('scrub').oninput = e => seekFrame(+e.target.value);
+  addEventListener('keydown', e => {
+    if (e.target.tagName === 'SELECT' || e.target === $('handle')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); seekFrame(frameOf(vL.currentTime) - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); seekFrame(frameOf(vL.currentTime) + 1); }
+    if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); }
+  });
+
+  function tick(once) {
+    const f = frameOf(vL.currentTime);
+    $('scrub').value = f;
+    $('frame').textContent = `frame ${f + 1} / ${FRAMES}`;
+    if (playing && Math.abs(vR.currentTime - vL.currentTime) > 0.04) vR.currentTime = vL.currentTime;
+    if (!once) requestAnimationFrame(() => tick());
+  }
+  tick();
+
+  document.querySelectorAll('#speed button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#speed button').forEach(x => x.classList.toggle('on', x === b));
+    vL.playbackRate = vR.playbackRate = +b.dataset.rate;
+  });
+
+  // Modos: lado a lado o cortina
+  document.querySelectorAll('#mode button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#mode button').forEach(x => x.classList.toggle('on', x === b));
+    stage.classList.toggle('wipe', b.dataset.mode === 'wipe');
+    zoom(false);
+  });
+
+  // Cortina arrastrable
+  const handle = $('handle');
+  function setCut(clientX) {
+    const r = stage.getBoundingClientRect();
+    const pct = Math.min(100, Math.max(0, (clientX - r.left) / r.width * 100));
+    stage.style.setProperty('--cut', pct + '%');
+    handle.setAttribute('aria-valuenow', Math.round(pct));
+  }
+  handle.addEventListener('pointerdown', e => {
+    handle.setPointerCapture(e.pointerId);
+    const move = ev => setCut(ev.clientX);
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', () => handle.removeEventListener('pointermove', move), { once: true });
+  });
+  handle.addEventListener('keydown', e => {
+    const cur = parseFloat(getComputedStyle(stage).getPropertyValue('--cut')) || 50;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const pct = Math.min(100, Math.max(0, cur + (e.key === 'ArrowLeft' ? -5 : 5)));
+      stage.style.setProperty('--cut', pct + '%');
+    }
+  });
+
+  // Lupa: clic para ampliar los dos videos en el mismo punto
+  let zoomed = false;
+  function zoom(on, x = 50, y = 50) {
+    zoomed = on;
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('zoomed', on));
+    [vL, vR].forEach(v => {
+      v.style.transformOrigin = `${x}% ${y}%`;
+      v.style.transform = on ? 'scale(2.5)' : '';
+    });
+  }
+  document.querySelectorAll('.pane').forEach(p => {
+    p.addEventListener('click', e => {
+      if (stage.classList.contains('wipe')) return;
+      const r = p.getBoundingClientRect();
+      zoom(!zoomed, (e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100);
+    });
+    p.addEventListener('mousemove', e => {
+      if (!zoomed) return;
+      const r = p.getBoundingClientRect();
+      const o = `${(e.clientX - r.left) / r.width * 100}% ${(e.clientY - r.top) / r.height * 100}%`;
+      vL.style.transformOrigin = vR.style.transformOrigin = o;
+    });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

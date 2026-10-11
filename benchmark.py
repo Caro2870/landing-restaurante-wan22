@@ -8,12 +8,34 @@ PROMPT = ("evening exterior of a restaurant terrace, warm lights glowing, people
           "camera moves straight forward toward the entrance, slow zoom in, photorealistic")
 NEG = "blurry, distorted, deformed faces, extra objects, text, watermark, low quality, flicker, morphing"
 
+# Configuraciones de 3 samplers: (pasos_totales, fin_sin_lora, cfg_sin_lora, fin_high_con_lora)
+THREE = {
+    "v1": (6, 2, 3.5, 3),    # la primera prueba (falló)
+    "v2": (8, 2, 3.5, 4),    # más pasos en total → saltos de ruido más chicos
+    "v3": (6, 2, 2.0, 3),    # cfg más bajo sin LoRA
+    "v4": (10, 3, 3.5, 5),   # 3 de 10 pasos sin LoRA
+    "v5": (12, 4, 2.5, 6),   # más pasos y cfg moderado
+}
+
 # nombre: (ancho, alto, sage, tres_samplers)
 VARIANTS = {
-    "A_base":      (832, 480, False, False),
-    "B_sage":      (832, 480, True,  False),
-    "C_3samplers": (832, 480, False, True),
-    "D_sage_3s":   (832, 480, True,  True),
+    "A_base":      (832, 480, False, None),
+    "B_sage":      (832, 480, True,  None),
+    "C_3samplers": (832, 480, False, "v1"),
+    "D_sage_3s":   (832, 480, True,  "v1"),
+    "E_sage_3s_v2": (832, 480, True, "v2"),
+    "F_sage_3s_v3": (832, 480, True, "v3"),
+    "G_sage_3s_v4": (832, 480, True, "v4"),
+    "H_sage_3s_v5": (832, 480, True, "v5"),
+    # Mismas configuraciones con un prompt neutro (sin "lights"): ¿el problema era el prompt?
+    "I_sage_3s_v3_neutro": (832, 480, True, "v3", "neutro"),
+    "J_sage_3s_v5_neutro": (832, 480, True, "v5", "neutro"),
+    "K_sage_neutro":       (832, 480, True, None, "neutro"),
+}
+
+PROMPTS = {
+    "neutro": ("people sitting and talking at outdoor cafe tables, a few people walking past, "
+               "camera moves slowly forward, realistic, natural motion"),
 }
 
 def upload(path):
@@ -32,13 +54,13 @@ def ksampler(model, latent, cond, start, end, total, cfg, noise, leftover):
         "start_at_step": start, "end_at_step": end,
         "return_with_leftover_noise": "enable" if leftover else "disable"}}
 
-def workflow(image, w, h, sage, three, prefix):
+def workflow(image, w, h, sage, three, prefix, prompt=None):
     wf = {
         "1": {"class_type": "UNETLoader", "inputs": {"unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors", "weight_dtype": "default"}},
         "2": {"class_type": "UNETLoader", "inputs": {"unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors", "weight_dtype": "default"}},
         "7": {"class_type": "CLIPLoader", "inputs": {"clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "type": "wan", "device": "default"}},
         "8": {"class_type": "VAELoader", "inputs": {"vae_name": "wan_2.1_vae.safetensors"}},
-        "9": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["7", 0], "text": PROMPT}},
+        "9": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["7", 0], "text": prompt or PROMPT}},
         "10": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["7", 0], "text": NEG}},
         "11": {"class_type": "LoadImage", "inputs": {"image": image}},
         "12": {"class_type": "WanImageToVideo", "inputs": {"positive": ["9", 0], "negative": ["10", 0], "vae": ["8", 0],
@@ -54,11 +76,12 @@ def workflow(image, w, h, sage, three, prefix):
     wf["5"] = {"class_type": "ModelSamplingSD3", "inputs": {"model": ["3", 0], "shift": 5.0}}
     wf["6"] = {"class_type": "ModelSamplingSD3", "inputs": {"model": ["4", 0], "shift": 5.0}}
     if three:
-        # 2 pasos sin LoRA (cfg real → mejor movimiento), luego high y low con LoRA. 6 pasos en total.
+        # Primeros pasos sin LoRA (cfg real → mejor movimiento), luego high y low con LoRA
+        total, a, cfg, b = THREE[three]
         wf["22"] = {"class_type": "ModelSamplingSD3", "inputs": {"model": high, "shift": 5.0}}
-        wf["13"] = ksampler(["22", 0], ["12", 2], "12", 0, 2, 6, 3.5, True, True)
-        wf["14"] = ksampler(["5", 0], ["13", 0], "12", 2, 3, 6, 1.0, False, True)
-        wf["15"] = ksampler(["6", 0], ["14", 0], "12", 3, 10000, 6, 1.0, False, False)
+        wf["13"] = ksampler(["22", 0], ["12", 2], "12", 0, a, total, cfg, True, True)
+        wf["14"] = ksampler(["5", 0], ["13", 0], "12", a, b, total, 1.0, False, True)
+        wf["15"] = ksampler(["6", 0], ["14", 0], "12", b, 10000, total, 1.0, False, False)
         last = "15"
     else:
         wf["13"] = ksampler(["5", 0], ["12", 2], "12", 0, 2, 4, 1.0, True, True)
@@ -105,11 +128,15 @@ if __name__ == "__main__":
     run(workflow(image, 256, 144, False, False, "warmup"), os.path.join(out_dir, "_warmup.mp4"))
     results = {}
     for n in names:
-        w, h, sage, three = VARIANTS[n]
+        w, h, sage, three, *extra = VARIANTS[n]
         print(f"== {n}", flush=True)
-        secs, err = run(workflow(image, w, h, sage, three, n), os.path.join(out_dir, f"{n}.mp4"))
+        prompt = PROMPTS[extra[0]] if extra else None
+        secs, err = run(workflow(image, w, h, sage, three, n, prompt), os.path.join(out_dir, f"{n}.mp4"))
         results[n] = {"segundos": round(secs, 1) if secs else None, "error": err}
         print(results[n], flush=True)
-    with open(os.path.join(out_dir, "resultados.json"), "w") as f:
-        json.dump(results, f, indent=2)
+    path = os.path.join(out_dir, "resultados.json")
+    old = json.load(open(path)) if os.path.exists(path) else {}
+    old.update(results)
+    with open(path, "w") as f:
+        json.dump(old, f, indent=2)
     print(json.dumps(results, indent=2))
